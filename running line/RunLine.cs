@@ -240,7 +240,7 @@ namespace running_line
 		/// перемещает знак с начала в конец.
 		/// </summary>
 		/// <param name="text">исходная строка.</param>
-		private static void StartToEnd(ref string text)
+		public static void StartToEnd(ref string text)
 		{
 			StringBuilder str = new(text);
 			str.Insert(str.Length, str[0]);
