@@ -1,11 +1,16 @@
 ﻿using System;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 namespace running_line
 {
 	internal class Program
 	{
 		static void Main()
+		{
+			RunLine.Run();
+		}
+		private static void Start()
 		{
 			while (true)
 			{

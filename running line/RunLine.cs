@@ -29,11 +29,11 @@ namespace running_line
 		private int toppos;
 
 		//стандартные значения для конструкторов.
-		private static readonly string textrunner = "это стандартная строка для теста программы. ";
-		private static readonly int timerunner = 70;
-		private static readonly bool TOlefter = true;
-		private static readonly int startlefter = 0;
-		private static readonly int starttopper = 0;
+		private const string textrunner = "это стандартная строка для теста программы. ";
+		private const int timerunner = 70;
+		private const bool TOlefter = true;
+		private const int startlefter = 0;
+		private const int starttopper = 0;
 		#endregion
 		#region properties
 		/// <summary>
@@ -223,9 +223,10 @@ namespace running_line
 		/// если <see langword="true"/>, то строка бежит справа налево. <br/>
 		/// иначе при <see langword="false"/> бежит слева направо.
 		/// </param>
-		public static void Run(string text, int afk, bool toleft, int leftpos, int toppos) //
+		public static void Run(string text = textrunner, int afk = timerunner, bool toleft = TOlefter, int leftpos = startlefter, int toppos = starttopper) //
 		{
 			//позиция бегующей строки -->
+			Console.SetCursorPosition(leftpos, toppos);
 			Console.CursorVisible = false;
 			for (int i = 0; true; i++)
 			{
@@ -233,7 +234,8 @@ namespace running_line
 				Thread.Sleep(afk);
 				if (!toleft) EndToStart(ref text);
 				else StartToEnd(ref text);
-				ClearLine(text.Length + 1, leftpos, toppos);
+				Console.SetCursorPosition(leftpos, toppos);
+				//ClearLine(text.Length + 1, leftpos, toppos);
 			}
 		}
 		/// <summary>
