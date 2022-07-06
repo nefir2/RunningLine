@@ -3,6 +3,9 @@ using System.Text;
 using System.Threading;
 namespace running_line
 {
+	/// <summary>
+	/// бегущая строка.
+	/// </summary>
 	public class RunLine
 	{
 		#region constants
@@ -209,9 +212,41 @@ namespace running_line
 			return rl;
 		}
 		/// <summary>
-		/// перемещает знак с начала в конец.
+		/// запуск бегущей строки.
 		/// </summary>
-		/// <param name="text">исходная строка.</param>
+		/// <remarks> 
+		/// ввод строки для вывода через консоль. <br/>
+		/// остальные поля объекта остаются стандартными.
+		/// </remarks>
+		/// <returns>объект бегущей строки запущенной в консоли.</returns>
+		public static RunLine ConsoleRun(string inputMessage, string exceptionMessage)
+		{
+			while (true)
+			{
+				try
+				{
+					Console.WriteLine(inputMessage);
+					string text = Console.ReadLine();
+					Console.Clear();
+					RunLine rl = new RunLine(text);
+					rl.Run();
+					return rl;
+				}
+				catch (Exception ex)
+				{
+					Console.WriteLine($"{exceptionMessage}\n{ex.Message}\n\n");
+					continue;
+				}
+			}
+		}
+		/// <summary>
+		/// перемещение знака с начала в конец.
+		/// </summary>
+		/// <remarks>
+		/// берётся первый символ строки, вставляется копия после последнего символа, и удаляется с начала.
+		/// </remarks>
+		/// <param name="text">исходная и возвращаемая строка.</param>
+		/// <returns>строка с перемещённым символом с начала в конец.</returns>
 		public static void StartToEnd(ref string text)
 		{
 			StringBuilder str = new(text);
@@ -220,10 +255,13 @@ namespace running_line
 			text = str.ToString();
 		}
 		/// <summary>
-		/// перемещает знак с конца в начало.
+		/// перемещение знака с конца в начало.
 		/// </summary>
-		/// <param name="text">исходная строка.</param>
-		/// <returns>строка, где последний символ стал первым, а с конца он удалён.</returns>
+		/// <remarks>
+		/// берётся последний символ строки, вставляется копия перед первым символом, и удаляется с конца.
+		/// </remarks>
+		/// <param name="text">исходная и возвращаемая строка.</param>
+		/// <returns>строка с перемещённым символом с конца в начало.</returns>
 		public static void EndToStart(ref string text)
 		{
 			StringBuilder str = new(text);
@@ -252,33 +290,6 @@ namespace running_line
 				Console.Write(' ');
 			}
 			Console.SetCursorPosition(left, top);
-		}
-		/// <summary>
-		/// запуск бегущей строки через консоль.
-		/// </summary>
-		/// <remarks>
-		/// вводится только строка, остальные поля остаются стандартными.
-		/// </remarks>
-		/// <returns>объект бегущей строки запущенной в консоли.</returns>
-		public static RunLine ConsoleRun(string inputMessage, string exceptionMessage)
-		{
-			while (true)
-			{
-				try
-				{
-					Console.WriteLine(inputMessage);
-					string text = Console.ReadLine();
-					Console.Clear();
-					RunLine rl = new RunLine(text);
-					rl.Run();
-					return rl;
-				}
-				catch (Exception ex)
-				{
-					Console.WriteLine($"{exceptionMessage}\n{ex.Message}\n\n");
-					continue;
-				}
-			}
 		}
 		#endregion
 	}
