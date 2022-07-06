@@ -1,11 +1,32 @@
 ﻿using System;
 using System.Text;
 using System.Threading;
-
 namespace running_line
 {
 	public class RunLine
 	{
+		#region constants
+		/// <summary>
+		/// начальная строка программы.
+		/// </summary>
+		private const string textrunner = "это стандартная строка для теста программы. ";
+		/// <summary>
+		/// начальное время между перемещением букв.
+		/// </summary>
+		private const int timerunner = 70;
+		/// <summary>
+		/// начальное направление перемещения букв.
+		/// </summary>
+		private const bool TOlefter = true;
+		/// <summary>
+		/// начальная стартовая позиция, по горизонтали.
+		/// </summary>
+		private const int startlefter = 0;
+		/// <summary>
+		/// начальная стартовая позиция, по вертикали.
+		/// </summary>
+		private const int starttopper = 0;
+		#endregion
 		#region fields
 		/// <summary>
 		/// текст который будет бегать.
@@ -27,22 +48,15 @@ namespace running_line
 		/// стартовая позиция текста по строкам.
 		/// </summary>
 		private int toppos;
-
-		//стандартные значения для конструкторов.
-		private const string textrunner = "это стандартная строка для теста программы. ";
-		private const int timerunner = 70;
-		private const bool TOlefter = true;
-		private const int startlefter = 0;
-		private const int starttopper = 0;
 		#endregion
 		#region properties
 		/// <summary>
-		/// свойство для значения бегущей строки.
+		/// строка которая будет бегать.
 		/// </summary>
 		public string Text
 		{
-			get { return text; }
-			set { text = value; }
+			get => text; 
+			set => text = value; 
 		}
 		/// <summary>
 		/// свойство для времени ожидания.
@@ -50,120 +64,79 @@ namespace running_line
 		/// <remarks>
 		/// после последнего перемещения буквы, воспроизводится ожидание указанное здесь.
 		/// </remarks>
+		/// <value>
+		/// значение не может быть бесконечным, или меньше 0.
+		/// </value>
+		/// <returns>
+		/// время ожидания объекта.
+		/// </returns>
+		/// <exception cref="ArgumentOutOfRangeException"/>
 		public int Afk
 		{
-			get { return afk; }
-			set { afk = value; }
+			get => afk; 
+			set
+			{
+				if (value < 0 || value == Timeout.Infinite) throw new ArgumentOutOfRangeException(nameof(this.Afk), "время ожидания было указано отрицательным или бесконечным.");
+				afk = value; 
+			}
 		}
 		/// <summary>
 		/// свойство для обозначения в какую сторону должен бежать текст.
 		/// </summary>
+		/// <value>
+		/// если <see langword="value"/> равен <see langword="true"/>, то видимое направление перемещения текста - налево. <br/>
+		/// иначе при <see langword="value"/> равном <see langword="false"/> видимое направление будет направо.
+		/// </value>
+		/// <returns>
+		/// направление перемещения текста.
+		/// </returns>
 		public bool Toleft
 		{
-			get { return toleft; }
-			set { toleft = value; }
+			get => toleft;
+			set => toleft = value; 
 		}
 		/// <summary>
 		/// стартовая позиция текста по столбцам.
 		/// </summary>
+		/// <value>
+		/// если <see langword="value"/> и длина строки <see cref="Text"/> вместе будут больше <see cref="Console.BufferWidth"/>, то выбросится исключение.
+		/// </value>
+		/// <returns>
+		/// значение начала строки в объекте.
+		/// </returns>
+		/// <exception cref="ArgumentOutOfRangeException"/>
 		public int Leftpos
 		{
-			get { return leftpos; }
+			get => leftpos;
 			set
 			{
-				if (value + text.Length > Console.BufferWidth) throw new ArgumentOutOfRangeException(nameof(value));
+				if (value + text.Length > Console.BufferWidth) throw new ArgumentOutOfRangeException(nameof(this.Leftpos), "значение вместе со строкой были больше буфферной зоны по ширине.");
 				leftpos = value;
 			}
 		}
 		/// <summary>
 		/// стартовая позиция текста по строкам.
 		/// </summary>
+		/// <value>
+		/// если <see langword="value"/> было больше <see cref="Console.BufferHeight"/>, то выбрасывается исключение.
+		/// </value>
+		/// <returns>
+		/// номер строки в которой находится бегущая строка.
+		/// </returns>
+		/// <exception cref="ArgumentOutOfRangeException"/>
 		public int Toppos
 		{
-			get { return toppos; }
+			get => toppos;
 			set
 			{
-				if (value > Console.BufferHeight) throw new ArgumentOutOfRangeException(nameof(value));
+				if (value > Console.BufferHeight) throw new ArgumentOutOfRangeException(nameof(this.Toppos), "значение было больше буфферной зоны по высоте.");
 				toppos = value;
 			}
 		}
 		#endregion
 		#region constructors
 		/// <summary>
-		/// конструктор без параметров.
-		/// </summary>
-		/// <remarks>
-		/// устанавливает стандартные значения.
-		/// </remarks>
-		public RunLine()									 : this(textrunner, timerunner, TOlefter, startlefter, starttopper) { }
-		/// <summary>
-		/// конструктор с параметром для текста.
-		/// </summary>
-		/// <param name="text">текст который будет бегать.</param>
-		/// <exception cref="ArgumentOutOfRangeException"></exception>
-		public RunLine(string text)							 : this(text, timerunner, TOlefter, startlefter, starttopper) { }
-		/// <summary>
-		/// конструктор с параметром для времени ожидания.
-		/// </summary>
-		/// <param name="afk">время ожидания между перебежками буквы.</param>
-		/// <exception cref="ArgumentOutOfRangeException"></exception>
-		public RunLine(int afk)								 : this(textrunner, afk) { }
-		/// <summary>
-		/// конструктор с параметром для направления перемещения.
-		/// </summary>
-		/// <param name="toleft">
-		/// направление бега текста. <br/>
-		/// если <see langword="true"/>, текст бежит справа налево. <br/>
-		/// иначе при <see langword="false"/> текст бежит слева направо.
-		/// </param>
-		public RunLine(bool toleft)							 : this(textrunner, toleft) { }
-		/// <summary>
-		/// конструктор с параметрами для начальной позиции текста. 
-		/// </summary>
-		/// <param name="leftpos">позиция текста по столбцам.</param>
-		/// <param name="toppos">позиция текста по строкам.</param>
-		/// <exception cref="ArgumentOutOfRangeException"></exception>
-		public RunLine(int leftpos, int toppos)				 : this(textrunner, timerunner, TOlefter, leftpos, toppos) { }
-		/// <summary>
-		/// конструктор с параметрами для текста и времени ожидания.
-		/// </summary>
-		/// <param name="text">текст который будет бегать.</param>
-		/// <param name="afk">время ожидания между перебежками буквы.</param>
-		/// <exception cref="ArgumentOutOfRangeException"></exception>
-		public RunLine(string text, int afk)				 : this(text, afk, TOlefter, startlefter, starttopper) { }
-		/// <summary>
-		/// конструктор с параметрами для текста и направления перемещения.
-		/// </summary>
-		/// <param name="text">текст который будет бегать.</param>
-		/// <param name="toleft">
-		/// направление бега текста. <br/>
-		/// если <see langword="true"/>, текст бежит справа налево. <br/>
-		/// иначе при <see langword="false"/> текст бежит слева направо.
-		/// </param>
-		/// <exception cref="ArgumentOutOfRangeException"></exception>
-		public RunLine(string text, bool toleft)			 : this(text, timerunner, toleft, startlefter, starttopper) { }
-		/// <summary>
-		/// конструктор с параметрами для текста, времени ожидания и направления перемещения.
-		/// </summary>
-		/// <param name="text">текст который будет бегать.</param>
-		/// <param name="afk">время ожидания между перебежками буквы.</param>
-		/// <param name="toleft">
-		/// направление бега текста. <br/>
-		/// если <see langword="true"/>, текст бежит справа налево. <br/>
-		/// иначе при <see langword="false"/> текст бежит слева направо.
-		/// </param>
-		/// <exception cref="ArgumentOutOfRangeException"></exception>
-		public RunLine(string text, int afk, bool toleft)    : this(text, afk, toleft, startlefter, starttopper) { }
-		/// <summary>
-		/// конструктор с параметром для текста и начальными позициями текста.
-		/// </summary>
-		/// <param name="text">текст который будет бегать.</param>
-		/// <param name="leftpos">позиция текста по столбцам.</param>
-		/// <param name="toppos">позиция текста по строкам.</param>
-		/// <exception cref="ArgumentOutOfRangeException"></exception>
-		public RunLine(string text, int leftpos, int toppos) : this(text, timerunner, TOlefter, leftpos, toppos) { }
-		/// <summary>
-		/// конструктор всех полей.
+		/// конструктор объекта <see cref="RunLine"/>.
 		/// </summary>
 		/// <param name="text">текст который будет бегать.</param>
 		/// <param name="afk">время ожидания между перебежками буквы.</param>
@@ -175,7 +148,7 @@ namespace running_line
 		/// <param name="leftpos">позиция текста по столбцам.</param>
 		/// <param name="toppos">позиция текста по строкам.</param>
 		/// <exception cref="ArgumentOutOfRangeException"></exception>
-		public RunLine(string text, int afk, bool toleft, int leftpos, int toppos)
+		public RunLine(string text = textrunner, int afk = timerunner, bool toleft = TOlefter, int leftpos = startlefter, int toppos = starttopper)
 		{
 			Text = text;
 			Toleft = toleft;
@@ -212,6 +185,9 @@ namespace running_line
 		/// <summary>
 		/// запуск бегущей строки.
 		/// </summary>
+		/// <remarks>
+		/// создание бегущей строки через параметры.
+		/// </remarks>
 		/// <param name="text">исходная строка, которая должна бежать.</param>
 		/// <param name="afk">
 		/// скорость перемещения строки. в миллисекундах.<br/>
@@ -224,19 +200,13 @@ namespace running_line
 		/// </param>
 		/// <param name="leftpos">начальная позиция по горизонтали.</param>
 		/// <param name="toppos">начальная позиция по вертикали.</param>
-		public static void Run(string text, int afk = timerunner, bool toleft = TOlefter, int leftpos = startlefter, int toppos = starttopper) 
+		/// <returns>объект бегущей строки.</returns>
+		/// <exception cref="ArgumentOutOfRangeException"/>
+		public static RunLine Run(string text = textrunner, int afk = timerunner, bool toleft = TOlefter, int leftpos = startlefter, int toppos = starttopper) 
 		{
-			Console.SetCursorPosition(leftpos, toppos);
-			Console.CursorVisible = false;
-			for (int i = 0; true; i++)
-			{
-				Console.Write(text);
-				Thread.Sleep(afk);
-				if (!toleft) EndToStart(ref text);
-				else StartToEnd(ref text);
-				Console.SetCursorPosition(leftpos, toppos);
-				//ClearLine(text.Length + 1, leftpos, toppos);
-			}
+			RunLine rl = new RunLine(text, afk, toleft, leftpos, toppos);
+			rl.Run();
+			return rl;
 		}
 		/// <summary>
 		/// перемещает знак с начала в конец.
@@ -275,7 +245,7 @@ namespace running_line
 		/// <exception cref="ArgumentOutOfRangeException"></exception>
 		public static void ClearLine(int left, int top, int length)
 		{
-			if (left + length > Console.BufferWidth) throw new ArgumentOutOfRangeException();
+			if (left + length > Console.BufferWidth) throw new ArgumentOutOfRangeException(nameof(left));
 			for (int i = left; i < length; i++)
 			{
 				Console.SetCursorPosition(i, top);
@@ -283,6 +253,125 @@ namespace running_line
 			}
 			Console.SetCursorPosition(left, top);
 		}
+		/// <summary>
+		/// запуск бегущей строки через консоль.
+		/// </summary>
+		/// <remarks>
+		/// вводится только строка, остальные поля остаются стандартными.
+		/// </remarks>
+		/// <returns>объект бегущей строки запущенной в консоли.</returns>
+		public static RunLine ConsoleRun(string inputMessage, string exceptionMessage)
+		{
+			while (true)
+			{
+				try
+				{
+					Console.WriteLine(inputMessage);
+					string text = Console.ReadLine();
+					Console.Clear();
+					RunLine rl = new RunLine(text);
+					rl.Run();
+					return rl;
+				}
+				catch (Exception ex)
+				{
+					Console.WriteLine($"{exceptionMessage}\n{ex.Message}\n\n");
+					continue;
+				}
+			}
+		}
 		#endregion
 	}
 }
+//метод static Run
+//
+//Console.SetCursorPosition(leftpos, toppos);
+//Console.CursorVisible = false;
+//for (int i = 0; true; i++)
+//{
+//	Console.Write(text);
+//	Thread.Sleep(afk);
+//	if (!toleft) EndToStart(ref text);
+//	else StartToEnd(ref text);
+//	Console.SetCursorPosition(leftpos, toppos);
+//	//ClearLine(text.Length + 1, leftpos, toppos);
+//}
+//
+//
+//более ненужные конструкторы.
+//
+//
+//
+///// <summary>
+///// конструктор без параметров.
+///// </summary>
+///// <remarks>
+///// устанавливает стандартные значения.
+///// </remarks>
+//public RunLine()									 : this(textrunner, timerunner, TOlefter, startlefter, starttopper) { }
+///// <summary>
+///// конструктор с параметром для текста.
+///// </summary>
+///// <param name="text">текст который будет бегать.</param>
+///// <exception cref="ArgumentOutOfRangeException"></exception>
+//public RunLine(string text)							 : this(text, timerunner, TOlefter, startlefter, starttopper) { }
+///// <summary>
+///// конструктор с параметром для времени ожидания.
+///// </summary>
+///// <param name="afk">время ожидания между перебежками буквы.</param>
+///// <exception cref="ArgumentOutOfRangeException"></exception>
+//public RunLine(int afk)								 : this(textrunner, afk) { }
+///// <summary>
+///// конструктор с параметром для направления перемещения.
+///// </summary>
+///// <param name="toleft">
+///// направление бега текста. <br/>
+///// если <see langword="true"/>, текст бежит справа налево. <br/>
+///// иначе при <see langword="false"/> текст бежит слева направо.
+///// </param>
+//public RunLine(bool toleft)							 : this(textrunner, toleft) { }
+///// <summary>
+///// конструктор с параметрами для начальной позиции текста. 
+///// </summary>
+///// <param name="leftpos">позиция текста по столбцам.</param>
+///// <param name="toppos">позиция текста по строкам.</param>
+///// <exception cref="ArgumentOutOfRangeException"></exception>
+//public RunLine(int leftpos, int toppos)				 : this(textrunner, timerunner, TOlefter, leftpos, toppos) { }
+///// <summary>
+///// конструктор с параметрами для текста и времени ожидания.
+///// </summary>
+///// <param name="text">текст который будет бегать.</param>
+///// <param name="afk">время ожидания между перебежками буквы.</param>
+///// <exception cref="ArgumentOutOfRangeException"></exception>
+//public RunLine(string text, int afk)				 : this(text, afk, TOlefter, startlefter, starttopper) { }
+///// <summary>
+///// конструктор с параметрами для текста и направления перемещения.
+///// </summary>
+///// <param name="text">текст который будет бегать.</param>
+///// <param name="toleft">
+///// направление бега текста. <br/>
+///// если <see langword="true"/>, текст бежит справа налево. <br/>
+///// иначе при <see langword="false"/> текст бежит слева направо.
+///// </param>
+///// <exception cref="ArgumentOutOfRangeException"></exception>
+//public RunLine(string text, bool toleft)			 : this(text, timerunner, toleft, startlefter, starttopper) { }
+///// <summary>
+///// конструктор с параметрами для текста, времени ожидания и направления перемещения.
+///// </summary>
+///// <param name="text">текст который будет бегать.</param>
+///// <param name="afk">время ожидания между перебежками буквы.</param>
+///// <param name="toleft">
+///// направление бега текста. <br/>
+///// если <see langword="true"/>, текст бежит справа налево. <br/>
+///// иначе при <see langword="false"/> текст бежит слева направо.
+///// </param>
+///// <exception cref="ArgumentOutOfRangeException"></exception>
+//public RunLine(string text, int afk, bool toleft)    : this(text, afk, toleft, startlefter, starttopper) { }
+///// <summary>
+///// конструктор с параметром для текста и начальными позициями текста.
+///// </summary>
+///// <param name="text">текст который будет бегать.</param>
+///// <param name="leftpos">позиция текста по столбцам.</param>
+///// <param name="toppos">позиция текста по строкам.</param>
+///// <exception cref="ArgumentOutOfRangeException"></exception>
+//public RunLine(string text, int leftpos, int toppos) : this(text, timerunner, TOlefter, leftpos, toppos) { }
