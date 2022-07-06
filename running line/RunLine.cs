@@ -195,9 +195,8 @@ namespace running_line
 		/// <summary>
 		/// запуск бегущей строки.
 		/// </summary>
-		public void Run() //
+		public void Run() 
 		{
-			//позиция бегующей строки -->
 			Console.SetCursorPosition(leftpos, toppos);
 			Console.CursorVisible = false;
 			for (int i = 0; true; i++)
@@ -223,9 +222,10 @@ namespace running_line
 		/// если <see langword="true"/>, то строка бежит справа налево. <br/>
 		/// иначе при <see langword="false"/> бежит слева направо.
 		/// </param>
-		public static void Run(string text = textrunner, int afk = timerunner, bool toleft = TOlefter, int leftpos = startlefter, int toppos = starttopper) //
+		/// <param name="leftpos">начальная позиция по горизонтали.</param>
+		/// <param name="toppos">начальная позиция по вертикали.</param>
+		public static void Run(string text, int afk = timerunner, bool toleft = TOlefter, int leftpos = startlefter, int toppos = starttopper) 
 		{
-			//позиция бегующей строки -->
 			Console.SetCursorPosition(leftpos, toppos);
 			Console.CursorVisible = false;
 			for (int i = 0; true; i++)
