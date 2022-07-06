@@ -207,7 +207,7 @@ namespace running_line
 		/// <exception cref="ArgumentOutOfRangeException"/>
 		public static RunLine Run(string text = textrunner, int afk = timerunner, bool toleft = TOlefter, int leftpos = startlefter, int toppos = starttopper) 
 		{
-			RunLine rl = new RunLine(text, afk, toleft, leftpos, toppos);
+			RunLine rl = new(text, afk, toleft, leftpos, toppos);
 			rl.Run();
 			return rl;
 		}
@@ -221,21 +221,32 @@ namespace running_line
 		/// <returns>объект бегущей строки запущенной в консоли.</returns>
 		public static RunLine ConsoleRun(string inputMessage, string exceptionMessage)
 		{
+			(int x, int y) = Console.GetCursorPosition();						//получение позиции курсора на момент запуска метода.
+			bool wasException = false;											//логическая переменная с информацией о том, была ли получена ошибка, или нет.
 			while (true)
 			{
 				try
 				{
-					Console.WriteLine(inputMessage);
-					string text = Console.ReadLine();
-					Console.Clear();
-					RunLine rl = new RunLine(text);
-					rl.Run();
-					return rl;
+					Console.WriteLine(inputMessage);							//вывод сообщение полученного в консоли.
+					string text = Console.ReadLine();							//получение строки для вывода с консоли.
+					RunLine.ClearLine(x, y, inputMessage.Length);				//очищение строки, где выведено сообщение для вывода в консоли.
+					RunLine.ClearLine(x, y + 1, text.Length);                   //очищение строки, где ввели сообщение для вывода.
+					if (wasException)											//если была ошибка, то её тоже нужно очистить.
+					{                                                           //так как мы знаем как должна выглядеть ошибка, надо лишь очистить некоторые строки.
+						wasException = false;									//обозначение, что ошибка была обработана.
+
+					}
+					Console.SetCursorPosition(x, y);							//установка курсора в первоначальную позицию.
+					RunLine rl = new(text);										//создание объекта бегущей строки.
+					rl.Run();													//запуск бегущей строки.
+					return rl;													//возврат созданного объекта бегущей строки.
 				}
-				catch (Exception ex)
+				catch (Exception ex)											//отлов ошибок (нацелено на: при создании объекта бегущей строки).
 				{
-					Console.WriteLine($"{exceptionMessage}\n{ex.Message}\n\n");
-					continue;
+					Console.WriteLine($"{exceptionMessage}");					//вывод заданного сообщения с ошибкой.
+					Console.WriteLine($"{ex.Message}\n");						//вывод сообщения полученной ошибки.
+					wasException = true;										//обозначение о том что ошибка была.
+					continue;													//повторный проход по методу.
 				}
 			}
 		}
