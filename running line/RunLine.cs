@@ -223,7 +223,7 @@ namespace running_line
 		{
 			(int x, int y) = Console.GetCursorPosition();						//получение позиции курсора на момент запуска метода.
 			bool wasException = false;											//логическая переменная с информацией о том, была ли получена ошибка, или нет.
-			while (true)
+			while (true)														//бесконченый цикл на случай выбрасываний ошибок.
 			{
 				try
 				{
